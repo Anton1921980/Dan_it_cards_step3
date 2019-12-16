@@ -113,7 +113,7 @@ class AuthorizationModal extends ModalWind {
 const registerEmail = new InputConstr("text", "registerEmail", "reristerEmailID", "login", "igor.shtr@gmail.com", false)
 const regEmailHTML = registerEmail.render();
 
-const registerPass = new InputConstr("password", "registerPass", "reristerPassID", "password", "111", true)
+const registerPass = new InputConstr("password", "registerPass", "reristerPassID", "password", "11111111910", true)
 const regPasslHTML = registerPass.render();
 
 const registerSubm = new InputConstr("submit", "registerSabm", "reristerSabmID", "ОТПРАВИТЬ", "", false)
@@ -515,20 +515,20 @@ class Visit {
             document.body.append(modalCard.render());
             modalCard.open();
             cardSelector();
-            // поля из редактируемой карты в форму
+// поля из редактируемой карты в форму
             document.getElementById("vizitDiscrID").setAttribute('value', `${this.description}`)
             document.getElementById("viziDoctorDataID").setAttribute('value', `${this.doctorData}`)
             document.getElementById("vizitTitleID").setAttribute('value', `${this.title}`)
             document.getElementById("vizitNameID").setAttribute('value', `${this.name}`)
             document.getElementById("vizitDateID").setAttribute('value', `${this.lastvizDate}`)
             document.getElementById("vizitorAgeID").setAttribute('value', `${this.age}`)
-            //  document.getElementById("vizitNameID").setAttribute('value', `${this.name}`)
-            //  document.getElementById("vizitNameID").setAttribute('value', `${this.name}`)
-            //  document.getElementById("vizitNameID").setAttribute('value', `${this.name}`)
-            //  document.getElementById("vizitNameID").setAttribute('value', `${this.name}`)
-
+            document.getElementById("vizitorWeightID").setAttribute('value', `${this.weight}`)
+            document.getElementById("vizitorDiseasID").setAttribute('value', `${this.disease}`)
+            document.getElementById("vizitorBPID").setAttribute('value', `${this.name}`)            
+//select атрибуты не могу поменять
             document.getElementById("vizitPriorityId").setAttribute('selected', `${this.priority}`)
             document.getElementById("doctorTipeId").setAttribute('selected', `${this.doctorType}`)
+           
             //  mySelect.selectedIndex = j;
             // Запись в объект введенных данных визита
 
