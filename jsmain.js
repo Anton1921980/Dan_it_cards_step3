@@ -1,7 +1,7 @@
 const docType = [" ", "Кардиолог", "Стоматолог", "Терапевт"];
 const docTypeFilter = ["Любой врач", "Кардиолог", "Стоматолог", "Терапевт"];
-const urgencyType = ["Срочность высокая", "Срочность обычная"];
-const urgencyTypeFilter = ["Любая срочность", "Срочность высокая", "Срочность обычная"];
+const urgencyType = ["Срочность высокая", "Срочность обычная","Срочность низкая"];
+const urgencyTypeFilter = ["Любая срочность", "Срочность высокая", "Срочность обычная","Срочность низкая"];
 const visitStatus = ["Done", "Open"]
 const doctorClass = "doctorType";
 
@@ -243,6 +243,7 @@ class CartModal extends ModalWind {
 
         const modal = super.render();
         modal.querySelector(".modal-content").append(form);
+        
         return modal;
     }
 }
@@ -294,7 +295,9 @@ newCardBtn.addEventListener("click", () => {
     document.body.append(modalCard.render());
 
     modalCard.open();
-
+   const allInputs = document.querySelectorAll("input");
+   allInputs.forEach(item => item.value = (""))
+  
     cardSelector();
 
     // Запись в объект введенных данных визита
@@ -321,7 +324,7 @@ newCardBtn.addEventListener("click", () => {
                 vizit["doctorType"] = docType[item.options[item.selectedIndex].value - 1]
             }
         })
-        console.log(vizit)
+        // console.log(vizit)
 
         // отправка данных на сервер
         const request = fetch(url, {
@@ -334,7 +337,7 @@ newCardBtn.addEventListener("click", () => {
         })
         request.then(request => request.json())
             .then(result => {
-                console.log(result);
+                // console.log(result);
                 let flag = false;
 
                 //карта появляется после добавления через форму
@@ -396,9 +399,8 @@ serchBtn.addEventListener("click", function () {
             const selectedUrg = urgencyTypeFilter[selectUrg.options[selectUrg.selectedIndex].value - 1];
             const selectDoctor = document.getElementById("selectDoctorId");
             const selectedDoctor = docTypeFilter[selectDoctor.options[selectDoctor.selectedIndex].value - 1];
-            console.log(selectedDoctor)
-            // result.forEach(item => console.log(item.id))
-            const filtredByUrgency = result.filter(function (item) {
+  
+            const filtredCards = result.filter(function (item) {
                 const cardsValues = Object.values(item);
                 if (selectedUrg == urgencyTypeFilter[0] && selectedDoctor == docTypeFilter[0]) {
                     return true;
@@ -415,7 +417,44 @@ serchBtn.addEventListener("click", function () {
             })
 
             // Отфильтрованный фильтром массив для отрисовки карточек
-            console.log(filtredByUrgency)
+            // console.log(filtredCards)
+            // Уделение всех карт из разметки отображение только отфильтрованных
+            const cardsOnBoard = document.getElementById(`containerId`);
+            while (cardsOnBoard.children[1]) {
+                cardsOnBoard.children[1].remove();
+            }
+            if (filtredCards.length ==0){
+                removeHideClass("zero-messageId")
+            }
+            else {
+                addHideClass("zero-messageId");
+              filtredCards.forEach(function (item) {
+                    // console.log(item);
+                    let response = item;
+                    // console.log(response);       
+        
+                        switch (response.doctorType) {
+                            case "Кардиолог":
+                                new VisitCardiolog(response).showMore();
+                                break;
+                            case "Стоматолог":
+                                new VisitDentist(response).showMore();
+                                break;
+                            case "Терапевт":
+                                new visitTherapist(response).showMore();
+                                break;
+                               
+                        }
+                        switch (response.doctorData) {// удаляем пробные карты
+                            case "":
+                                new VisitCardiolog(response).showMore();
+                                break;
+                            case "House":
+                                new VisitCardiolog(response).showMore();
+                                break;
+                            }
+                    })   
+            }
         }
         )
 
@@ -472,14 +511,14 @@ class Visit {
         this.status = response.status;
         this.priority = response.priority;
         let id = this.id;
-        console.log(this);
-        console.log(id);
+        // console.log(this);
+        // console.log(id);
     }
 
     render() {
         const container = document.querySelector('.container');
         const nocards = document.querySelector('.zero-message');// Remove message No cards added
-        nocards.classList.add('hidden');
+        nocards.classList.add('hide');
         const visitCard = document.createElement('div');
         // visitCard.className = this.className;
         // visitCard.id = this.id;     
@@ -504,7 +543,7 @@ class Visit {
                 <button class="submit submit${id}">Submit</button>
                 </div>            
             `)    
-        console.log(container);
+        // console.log(container);
         visitCard.draggable = true;
         visitCard.addEventListener('dragstart', this.drag)
 
@@ -556,7 +595,7 @@ class Visit {
                     }
                 })
 
-                console.log(vizit)
+          
 
                 // отправка данных на сервер
                 const request = fetch(url, {
@@ -570,8 +609,8 @@ class Visit {
                 })
                 request.then(request => request.json())
                     .then(result => {
-                        console.log(result);
-                        let flag = false;
+                
+                     
 
                         //карта появляется после добавления через форму
                         switch (result.doctorType) {
@@ -591,15 +630,15 @@ class Visit {
         })
     }
     drag(e) {
-        console.log(e)
+        // console.log(e)
         e.dataTransfer.setData('text/html', e.currentTarget.id);        
     }
     deleteCard() {
-        console.log(this.id)
+        // console.log(this.id)
         let id = this.id
         const closeBtn = document.querySelector(`.closeBtn${id}`);
         closeBtn.addEventListener('click', () => {
-            console.log(id)
+            // console.log(id)
             const delrequest = fetch(`http://cards.danit.com.ua/cards/${id}`, {
                 method: "delete",
                 headers: {
@@ -608,7 +647,8 @@ class Visit {
                 }
             })
             delrequest.then(delrequest => delrequest.json())
-                .then(result => console.log(result),
+                .then(result => 
+                    // console.log(result),
                     document.querySelector(`.card${id}`).remove()
                 )
         })
@@ -624,11 +664,11 @@ function chooseVisit() {
     })
     request.then(request => request.json())
         .then(result => {
-            console.log(result)
+            // console.log(result)
             result.forEach(function (item) {
-                console.log(item);
+                // console.log(item);
                 let response = item;
-                console.log(response);
+                // console.log(response);
 
                 switch (response.doctorType) {
                     case "Кардиолог":
@@ -665,7 +705,7 @@ class VisitCardiolog extends Visit {
         showMoreBtn.addEventListener('click', () => {
             showMoreBtn.classList.toggle('hidden');
             const moreInfo = document.createElement('div');
-            console.log(this); 
+            // console.log(this); 
             card.append(moreInfo);         
             moreInfo.insertAdjacentHTML('afterbegin', `       
                 <div class ="show show${id}"> 
@@ -703,7 +743,7 @@ class VisitDentist extends Visit {
         showMoreBtn.addEventListener('click', () => {
             showMoreBtn.classList.toggle('hidden');
             const moreInfo = document.createElement('div');
-            console.log(this);
+            // console.log(this);
             moreInfo.innerHTML = `       
                 <div class ="show${id}">  
                 <p><span></span>Последний визит: ${this.lastvizDate}</p>
@@ -739,7 +779,7 @@ class visitTherapist extends Visit {
         showMoreBtn.addEventListener('click', () => {
             showMoreBtn.classList.add('hidden');
             const moreInfo = document.createElement('div');
-            console.log(this);
+            // console.log(this);
             moreInfo.innerHTML = `       
                 <div class ="show${id}">           
                 <p><span></span>Возраст: ${this.age}</p>         
