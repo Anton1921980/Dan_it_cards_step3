@@ -1,7 +1,7 @@
 const docType = [" ", "Кардиолог", "Стоматолог", "Терапевт"];
 const docTypeFilter = ["Любой врач", "Кардиолог", "Стоматолог", "Терапевт"];
-const urgencyType = ["Срочность высокая", "Срочность обычная","Срочность низкая"];
-const urgencyTypeFilter = ["Любая срочность", "Срочность высокая", "Срочность обычная","Срочность низкая"];
+const urgencyType = ["Срочность высокая", "Срочность обычная"];
+const urgencyTypeFilter = ["Любая срочность", "Срочность высокая", "Срочность обычная"];
 const visitStatus = ["Done", "Open"]
 const doctorClass = "doctorType";
 
@@ -243,7 +243,6 @@ class CartModal extends ModalWind {
 
         const modal = super.render();
         modal.querySelector(".modal-content").append(form);
-        
         return modal;
     }
 }
@@ -295,9 +294,9 @@ newCardBtn.addEventListener("click", () => {
     document.body.append(modalCard.render());
 
     modalCard.open();
-   const allInputs = document.querySelectorAll("input");
-   allInputs.forEach(item => item.value = (""))
-  
+    const allInputs = document.querySelectorAll("input");
+    allInputs.forEach(item => item.value = (""))
+
     cardSelector();
 
     // Запись в объект введенных данных визита
@@ -324,7 +323,7 @@ newCardBtn.addEventListener("click", () => {
                 vizit["doctorType"] = docType[item.options[item.selectedIndex].value - 1]
             }
         })
-        // console.log(vizit)
+        console.log(vizit)
 
         // отправка данных на сервер
         const request = fetch(url, {
@@ -337,7 +336,7 @@ newCardBtn.addEventListener("click", () => {
         })
         request.then(request => request.json())
             .then(result => {
-                // console.log(result);
+                console.log(result);
                 let flag = false;
 
                 //карта появляется после добавления через форму
@@ -367,8 +366,10 @@ newCardBtn.addEventListener("click", () => {
                 //  }
 
                 document.getElementById("modalCardId").remove();
-            })
+               
+            })         
     })
+
 })
 // fetch DELETE запрос на получение массива всех карточек с объекта
 
@@ -399,8 +400,9 @@ serchBtn.addEventListener("click", function () {
             const selectedUrg = urgencyTypeFilter[selectUrg.options[selectUrg.selectedIndex].value - 1];
             const selectDoctor = document.getElementById("selectDoctorId");
             const selectedDoctor = docTypeFilter[selectDoctor.options[selectDoctor.selectedIndex].value - 1];
-  
-            const filtredCards = result.filter(function (item) {
+            console.log(selectedDoctor)
+            // result.forEach(item => console.log(item.id))
+            const filtredByUrgency = result.filter(function (item) {
                 const cardsValues = Object.values(item);
                 if (selectedUrg == urgencyTypeFilter[0] && selectedDoctor == docTypeFilter[0]) {
                     return true;
@@ -417,44 +419,7 @@ serchBtn.addEventListener("click", function () {
             })
 
             // Отфильтрованный фильтром массив для отрисовки карточек
-            // console.log(filtredCards)
-            // Уделение всех карт из разметки отображение только отфильтрованных
-            const cardsOnBoard = document.getElementById(`containerId`);
-            while (cardsOnBoard.children[1]) {
-                cardsOnBoard.children[1].remove();
-            }
-            if (filtredCards.length ==0){
-                removeHideClass("zero-messageId")
-            }
-            else {
-                addHideClass("zero-messageId");
-              filtredCards.forEach(function (item) {
-                    // console.log(item);
-                    let response = item;
-                    // console.log(response);       
-        
-                        switch (response.doctorType) {
-                            case "Кардиолог":
-                                new VisitCardiolog(response).showMore();
-                                break;
-                            case "Стоматолог":
-                                new VisitDentist(response).showMore();
-                                break;
-                            case "Терапевт":
-                                new visitTherapist(response).showMore();
-                                break;
-                               
-                        }
-                        switch (response.doctorData) {// удаляем пробные карты
-                            case "":
-                                new VisitCardiolog(response).showMore();
-                                break;
-                            case "House":
-                                new VisitCardiolog(response).showMore();
-                                break;
-                            }
-                    })   
-            }
+            console.log(filtredByUrgency)
         }
         )
 
@@ -498,6 +463,8 @@ filtersSect.append(selectDoctor.render());
 
 filtersSect.append(selectUrgency.render());
 
+
+
 // загрузка с сервера и отрисовка всех карт, удаление карты, drag & drop ( студент Антон Молчановский )
 
 class Visit {
@@ -511,14 +478,14 @@ class Visit {
         this.status = response.status;
         this.priority = response.priority;
         let id = this.id;
-        // console.log(this);
-        // console.log(id);
+        console.log(this);
+        console.log(id);
     }
 
     render() {
         const container = document.querySelector('.container');
         const nocards = document.querySelector('.zero-message');// Remove message No cards added
-        nocards.classList.add('hide');
+        nocards.classList.add('hidden');
         const visitCard = document.createElement('div');
         // visitCard.className = this.className;
         // visitCard.id = this.id;     
@@ -529,7 +496,7 @@ class Visit {
         container.append(visitCard);
         visitCard.insertAdjacentHTML('afterbegin', `        
                 <button class="close closeBtn${id}">&times;</button>
-                <div class="card-content">  
+                <div class="card-content card-content${id} ">  
                 <p><span>Пациент:</span><span class="name">${this.name}</span></p>        
                 <p><span>Имя Доктор: </span>${this.doctorData}</p>
                 <p><span>Тип Доктора: </span>${this.doctorType}</p>           
@@ -537,108 +504,141 @@ class Visit {
                 <p><span>Описание: </span>${this.description}</p>
                 <p><span>Срочность: </span>${this.priority}</p>              
                 </div>         
-                <div class="card-options">
-                <button class="showMore showMore${id}">Show Details</button>            
-                <button class="edit edit${id}">Edit</button>
-                <button class="submit submit${id}">Submit</button>
+                <div class="card-options">               
+                <button class="showMore showMore${id}">Details</button>
+                <button class="drop-button submit${id}">Options</button>
+                <ul class="dropdown dropdown${id}">
+                <li class="edit edit${id} hidden">Edit</li>
+                <li class="finish finish${id} hidden">Finish</li>
+                <li class="open open${id} hidden">Open visit</li>
+                </ul>
                 </div>            
-            `)    
+            `)
         // console.log(container);
         visitCard.draggable = true;
-        visitCard.addEventListener('dragstart', this.drag)
+        visitCard.addEventListener('dragstart', this.drag);        
+        const content = document.querySelector(`.card-content${id}`);        
+        const open = document.querySelector(`.open${id}`);
+        const submit = document.querySelector(`.submit${id}`);
+        const finish = document.querySelector(`.finish${id}`);
+        submit.addEventListener('click', () => {            
+            (submit.innerHTML === 'Options') ? submit.innerHTML = 'X' : submit.innerHTML = 'Options';
+            const edit = document.querySelector(`.edit${id}`);
+            edit.classList.toggle('hidden');            
+            finish.classList.toggle('hidden');
+        }),
+        finish.addEventListener('click',()=>{           
+            document.querySelector(`.card${id}`).classList.toggle('finished');            
+            content.insertAdjacentHTML('afterbegin', `
+            <p><span class="status${id}">Visit closed</span></p> 
+            `) 
+            finish.classList.toggle('hidden');
+            open.classList.toggle('hidden');
+        })    
+     const status = document.querySelector(`.status${id}`);
+     open.addEventListener('click',()=>{
+        document.querySelector(`.card${id}`).classList.toggle('finished');
+        finish.classList.toggle('hidden');
+        open.classList.toggle('hidden');
+        const status = document.querySelector(`.status${id}`);
+        status.classList.add('hidden');
+     })
 
-        // надо вызвать модалку формы но передать туда поля этой карты
-        document.querySelector(`.edit${id}`).addEventListener('click', () => {
-            const modalCard = new CartModal("http://cards.danit.com.ua/cards", "modalFormcardId", viziPashentDataHTML, vizitTitleHTML, vizitDoctorselectHTML, vizitDoctorDataHTML,
-                vizitDiscrHTML, vizitDateHTML, vizitPriorityHTML, vizitorAgeHTML, vizitorWeightHTML, vizitorBPHTML, newCardSabm, vizitorDiseasHTML, "modalCard", "modalCardId");
-            document.body.append(modalCard.render());
-            modalCard.open();
-            cardSelector();
-// поля из редактируемой карты в форму
-            document.getElementById("vizitDiscrID").setAttribute('value', `${this.description}`)
-            document.getElementById("viziDoctorDataID").setAttribute('value', `${this.doctorData}`)
-            document.getElementById("vizitTitleID").setAttribute('value', `${this.title}`)
-            document.getElementById("vizitNameID").setAttribute('value', `${this.name}`)
-            document.getElementById("vizitDateID").setAttribute('value', `${this.lastvizDate}`)
-            document.getElementById("vizitorAgeID").setAttribute('value', `${this.age}`)
-            document.getElementById("vizitorWeightID").setAttribute('value', `${this.weight}`)
-            document.getElementById("vizitorDiseasID").setAttribute('value', `${this.disease}`)
-            document.getElementById("vizitorBPID").setAttribute('value', `${this.name}`)            
-//select атрибуты не могу поменять
-            document.getElementById("vizitPriorityId").setAttribute('selected', `${this.priority}`)
-            document.getElementById("doctorTipeId").setAttribute('selected', `${this.doctorType}`)
-           
-            //  mySelect.selectedIndex = j;
-            // Запись в объект введенных данных визита
+            // надо вызвать модалку формы но передать туда поля этой карты
+            document.querySelector(`.edit${id}`).addEventListener('click', () => {
+                const modalCard = new CartModal("http://cards.danit.com.ua/cards", "modalFormcardId", viziPashentDataHTML, vizitTitleHTML, vizitDoctorselectHTML, vizitDoctorDataHTML,
+                    vizitDiscrHTML, vizitDateHTML, vizitPriorityHTML, vizitorAgeHTML, vizitorWeightHTML, vizitorBPHTML, newCardSabm, vizitorDiseasHTML, "modalCard", "modalCardId");
+                document.body.append(modalCard.render());
+                // поля из редактируемой карты передаем в форму
+                document.getElementById("vizitDiscrID").setAttribute('value', `${this.description}`);
+                document.getElementById("viziDoctorDataID").setAttribute('value', `${this.doctorData}`);
+                document.getElementById("vizitTitleID").setAttribute('value', `${this.title}`);
+                document.getElementById("vizitNameID").setAttribute('value', `${this.name}`);
+                console.log(`${this.name}`);
+                document.getElementById("vizitDateID").setAttribute('value', `${this.lastvizDate}`);
+                document.getElementById("vizitorAgeID").setAttribute('value', `${this.age}`);
+                document.getElementById("vizitorWeightID").setAttribute('value', `${this.weight}`);
+                document.getElementById("vizitorDiseasID").setAttribute('value', `${this.disease}`);
+                document.getElementById("vizitorBPID").setAttribute('value', `${this.name}`);
+                //select атрибуты не могу поменять
+                document.getElementById("vizitPriorityId").setAttribute('selected', `${this.priority}`);
+                document.getElementById("doctorTipeId").setAttribute('selected', `${this.doctorType}`);
 
-            const modalFormcard = document.getElementById("modalFormcardId");
-            modalFormcard.addEventListener("submit", function (e) {
-                e.preventDefault();
-                const vizit = {};
-                const url = this.getAttribute("action");
-                const inputs = this.querySelectorAll("input");
-                inputs.forEach(item => {
-                    if (!(item.getAttribute("name") == "СОЗДАТЬ ВИЗИТ")) {
+                modalCard.open();
+                cardSelector();
 
-                        vizit[item.name] = item.value
 
-                    }
+                //  mySelect.selectedIndex = j;
+                // Запись в объект введенных данных визита
 
-                })
-                const selects = this.querySelectorAll("select")
-                selects.forEach(item => {
-                    if (item.classList.contains("vizitPriority")) {
-                        vizit["priority"] = urgencyType[item.options[item.selectedIndex].value - 1]
-                    }
-                    if (item.classList.contains("doctorTipe")) {
-                        vizit["doctorType"] = docType[item.options[item.selectedIndex].value - 1]
-                    }
-                })
+                const modalFormcard = document.getElementById("modalFormcardId");
+                modalFormcard.addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    const vizit = {};
+                    const url = this.getAttribute("action");
+                    const inputs = this.querySelectorAll("input");
+                    inputs.forEach(item => {
+                        if (!(item.getAttribute("name") == "СОЗДАТЬ ВИЗИТ")) {
 
-          
-
-                // отправка данных на сервер
-                const request = fetch(url, {
-                    method: "post",
-                    headers: {
-                        "Content-type": "aplication/json",
-                        "Authorization": "Bearer 69fb6b423bee"
-                    },
-                    body: JSON.stringify(vizit)
-
-                })
-                request.then(request => request.json())
-                    .then(result => {
-                
-                     
-
-                        //карта появляется после добавления через форму
-                        switch (result.doctorType) {
-                            case "Кардиолог":
-                                new VisitCardiolog(result).showMore();
-                                break;
-                            case "Стоматолог":
-                                new VisitDentist(result).showMore();
-                                break;
-                            case "Терапевт":
-                                new visitTherapist(result).showMore();
-                                break;
+                            vizit[item.name] = item.value
                         }
-                        document.getElementById("modalCardId").remove();
+
                     })
+                    const selects = this.querySelectorAll("select")
+                    selects.forEach(item => {
+                        if (item.classList.contains("vizitPriority")) {
+                            vizit["priority"] = urgencyType[item.options[item.selectedIndex].value - 1]
+                        }
+                        if (item.classList.contains("doctorTipe")) {
+                            vizit["doctorType"] = docType[item.options[item.selectedIndex].value - 1]
+                        }
+                    })
+
+                    console.log(vizit)
+
+                    //отправка данных на сервер
+                    const request = fetch(url, {
+                        method: "post",
+                        headers: {
+                            "Content-type": "aplication/json",
+                            "Authorization": "Bearer 69fb6b423bee"
+                        },
+                        body: JSON.stringify(vizit)
+
+                    })
+                    request.then(request => request.json())
+                        .then(result => {
+                            console.log(result);
+                            let flag = false;
+
+                            //карта появляется после добавления через форму
+                            switch (result.doctorType) {
+                                case "Кардиолог":
+                                    new VisitCardiolog(result).showMore();
+                                    break;
+                                case "Стоматолог":
+                                    new VisitDentist(result).showMore();
+                                    break;
+                                case "Терапевт":
+                                    new visitTherapist(result).showMore();
+                                    break;
+                            }
+                            document.getElementById("modalCardId").remove();
+                        })
+                })
             })
-        })
     }
     drag(e) {
-        // console.log(e)
-        e.dataTransfer.setData('text/html', e.currentTarget.id);        
+        console.log(e)
+        e.dataTransfer.setData('text/html', e.currentTarget.id);
     }
+
     deleteCard() {
-        // console.log(this.id)
+        console.log(this.id)
         let id = this.id
         const closeBtn = document.querySelector(`.closeBtn${id}`);
         closeBtn.addEventListener('click', () => {
-            // console.log(id)
+            console.log(id)
             const delrequest = fetch(`http://cards.danit.com.ua/cards/${id}`, {
                 method: "delete",
                 headers: {
@@ -647,8 +647,7 @@ class Visit {
                 }
             })
             delrequest.then(delrequest => delrequest.json())
-                .then(result => 
-                    // console.log(result),
+                .then(result => console.log(result),
                     document.querySelector(`.card${id}`).remove()
                 )
         })
@@ -664,11 +663,11 @@ function chooseVisit() {
     })
     request.then(request => request.json())
         .then(result => {
-            // console.log(result)
+            console.log(result)
             result.forEach(function (item) {
-                // console.log(item);
+                console.log(item);
                 let response = item;
-                // console.log(response);
+                console.log(response);
 
                 switch (response.doctorType) {
                     case "Кардиолог":
@@ -681,7 +680,7 @@ function chooseVisit() {
                         new visitTherapist(response).showMore();
                         break;
 
-                }               
+                }
             })
         })
 }
@@ -698,15 +697,15 @@ class VisitCardiolog extends Visit {
         super.id
         super.deleteCard();
     }
-    showMore() {//работает только для первой карты
+    showMore() {
         let id = this.id
         const card = document.querySelector(`.card${id}`);
         const showMoreBtn = document.querySelector(`.showMore${id}`);
         showMoreBtn.addEventListener('click', () => {
             showMoreBtn.classList.toggle('hidden');
             const moreInfo = document.createElement('div');
-            // console.log(this); 
-            card.append(moreInfo);         
+            console.log(this);
+            card.append(moreInfo);
             moreInfo.insertAdjacentHTML('afterbegin', `       
                 <div class ="show show${id}"> 
                 <p><span></span>id: ${id}</p> 
@@ -715,14 +714,13 @@ class VisitCardiolog extends Visit {
                 <p><span></span>Возраст: ${this.age}</p>
                 <p><span></span>Вес: ${this.weight}</p> 
                 <p><span></span>Последний визит: ${this.lastvizDate}</p>
-                <button class="showLess showLess${id}">Hide Details</button> 
+                <button class="showLess showLess${id}"style="width:100%">Hide Details</button> 
                 </div>  
             `);
-            card.append(moreInfo);
             const showLessBtn = document.querySelector(`.showLess${id}`);
             showLessBtn.addEventListener('click', () => {//работает только первый раз 
                 document.querySelector(`.show${id}`).classList.add('hidden');
-                document.querySelector(`.showMore${id}`).classList.remove('hidden');
+                document.querySelector(`.showMore${id}`).classList.remove('hidden');                             
             })
         });
     }
@@ -743,11 +741,11 @@ class VisitDentist extends Visit {
         showMoreBtn.addEventListener('click', () => {
             showMoreBtn.classList.toggle('hidden');
             const moreInfo = document.createElement('div');
-            // console.log(this);
-            moreInfo.innerHTML = `       
+            console.log(this);
+            moreInfo.innerHTML = `               
                 <div class ="show${id}">  
                 <p><span></span>Последний визит: ${this.lastvizDate}</p>
-                <button class="showLess${id}">Hide Details</button> 
+                <button class="showLess${id}" style="width:100%">Hide Details</button> 
                 </div>  
             `;
             card.append(moreInfo);
@@ -779,11 +777,11 @@ class visitTherapist extends Visit {
         showMoreBtn.addEventListener('click', () => {
             showMoreBtn.classList.add('hidden');
             const moreInfo = document.createElement('div');
-            // console.log(this);
+            console.log(this);
             moreInfo.innerHTML = `       
                 <div class ="show${id}">           
                 <p><span></span>Возраст: ${this.age}</p>         
-                <button class="showLess${id}">Hide Details</button> 
+                <button class="showLess${id}"style="width:100%">Hide Details</button> 
                 </div>  
             `;
             card.append(moreInfo);
@@ -841,3 +839,7 @@ function drop(e) {
         }
     }
 }
+
+
+
+//showMore в Vizit и вызывать оттуда
