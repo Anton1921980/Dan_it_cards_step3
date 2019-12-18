@@ -1,7 +1,7 @@
 const docType = [" ", "Кардиолог", "Стоматолог", "Терапевт"];
 const docTypeFilter = ["Любой врач", "Кардиолог", "Стоматолог", "Терапевт"];
-const urgencyType = ["Срочность высокая", "Срочность обычная"];
-const urgencyTypeFilter = ["Любая срочность", "Срочность высокая", "Срочность обычная"];
+const urgencyType = ["Срочность высокая", "Срочность обычная","Срочность низкая"];
+const urgencyTypeFilter = ["Любая срочность", "Срочность высокая", "Срочность обычная","Срочность низкая"];
 const visitStatus = ["Done", "Open"]
 const doctorClass = "doctorType";
 
@@ -242,12 +242,10 @@ class CartModal extends ModalWind {
         form.append(this.newCardSabmHTML);
 
         const modal = super.render();
-        modal.querySelector(".modal-content").append(form);
+        modal.querySelector(".modal-content").append(form);        
         return modal;
     }
 }
-
-
 
 const viziPashentData = new InputConstr("text", "", "vizitNameID", "name", "Enter pashent name", false)
 const viziPashentDataHTML = viziPashentData.render();
@@ -294,9 +292,9 @@ newCardBtn.addEventListener("click", () => {
     document.body.append(modalCard.render());
 
     modalCard.open();
-    const allInputs = document.querySelectorAll("input");
-    allInputs.forEach(item => item.value = (""))
-
+   const allInputs = document.querySelectorAll("input");
+   allInputs.forEach(item => item.value = (""))
+  
     cardSelector();
 
     // Запись в объект введенных данных визита
@@ -323,7 +321,7 @@ newCardBtn.addEventListener("click", () => {
                 vizit["doctorType"] = docType[item.options[item.selectedIndex].value - 1]
             }
         })
-        console.log(vizit)
+        // console.log(vizit)
 
         // отправка данных на сервер
         const request = fetch(url, {
@@ -336,7 +334,7 @@ newCardBtn.addEventListener("click", () => {
         })
         request.then(request => request.json())
             .then(result => {
-                console.log(result);
+                // console.log(result);
                 let flag = false;
 
                 //карта появляется после добавления через форму
@@ -366,10 +364,8 @@ newCardBtn.addEventListener("click", () => {
                 //  }
 
                 document.getElementById("modalCardId").remove();
-               
-            })         
+            })
     })
-
 })
 // fetch DELETE запрос на получение массива всех карточек с объекта
 
@@ -400,9 +396,8 @@ serchBtn.addEventListener("click", function () {
             const selectedUrg = urgencyTypeFilter[selectUrg.options[selectUrg.selectedIndex].value - 1];
             const selectDoctor = document.getElementById("selectDoctorId");
             const selectedDoctor = docTypeFilter[selectDoctor.options[selectDoctor.selectedIndex].value - 1];
-            console.log(selectedDoctor)
-            // result.forEach(item => console.log(item.id))
-            const filtredByUrgency = result.filter(function (item) {
+  
+            const filtredCards = result.filter(function (item) {
                 const cardsValues = Object.values(item);
                 if (selectedUrg == urgencyTypeFilter[0] && selectedDoctor == docTypeFilter[0]) {
                     return true;
@@ -419,7 +414,44 @@ serchBtn.addEventListener("click", function () {
             })
 
             // Отфильтрованный фильтром массив для отрисовки карточек
-            console.log(filtredByUrgency)
+            // console.log(filtredCards)
+            // Уделение всех карт из разметки отображение только отфильтрованных
+            const cardsOnBoard = document.getElementById(`containerId`);
+            while (cardsOnBoard.children[1]) {
+                cardsOnBoard.children[1].remove();
+            }
+            if (filtredCards.length ==0){
+                removeHideClass("zero-messageId")
+            }
+            else {
+                addHideClass("zero-messageId");
+              filtredCards.forEach(function (item) {
+                    // console.log(item);
+                    let response = item;
+                    // console.log(response);       
+        
+                        switch (response.doctorType) {
+                            case "Кардиолог":
+                                new VisitCardiolog(response).showMore();
+                                break;
+                            case "Стоматолог":
+                                new VisitDentist(response).showMore();
+                                break;
+                            case "Терапевт":
+                                new visitTherapist(response).showMore();
+                                break;
+                               
+                        }
+                        switch (response.doctorData) {// удаляем пробные карты
+                            case "":
+                                new VisitCardiolog(response).showMore();
+                                break;
+                            case "House":
+                                new VisitCardiolog(response).showMore();
+                                break;
+                            }
+                    })   
+            }
         }
         )
 
@@ -462,8 +494,6 @@ const filtersSect = document.getElementById("filters");
 filtersSect.append(selectDoctor.render());
 
 filtersSect.append(selectUrgency.render());
-
-
 
 // загрузка с сервера и отрисовка всех карт, удаление карты, drag & drop ( студент Антон Молчановский )
 
