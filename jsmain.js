@@ -119,7 +119,7 @@ const regPasslHTML = registerPass.render();
 const registerSubm = new InputConstr("submit", "registerSabm", "reristerSabmID", "ОТПРАВИТЬ", "", false)
 const regSubmlHTML = registerSubm.render();
 
-const modalRegister = new AuthorizationModal("http://cards.danit.com.ua/login", "loginForm", regEmailHTML, regPasslHTML, regSubmlHTML, "modalRegister", "modalRegisterId");
+const modalRegister = new AuthorizationModal("https://cards.danit.com.ua/login", "loginForm", regEmailHTML, regPasslHTML, regSubmlHTML, "modalRegister", "modalRegisterId");
 document.body.append(modalRegister.render());
 
 
@@ -287,7 +287,7 @@ const newCardSabmHTML = newCardSabm.render();
 const newCardBtn = document.getElementById("newVizitId")
 newCardBtn.addEventListener("click", () => {
 
-    const modalCard = new CartModal("http://cards.danit.com.ua/cards", "modalFormcardId", viziPashentDataHTML, vizitTitleHTML, vizitDoctorselectHTML, vizitDoctorDataHTML,
+    const modalCard = new CartModal("https://cards.danit.com.ua/cards", "modalFormcardId", viziPashentDataHTML, vizitTitleHTML, vizitDoctorselectHTML, vizitDoctorDataHTML,
         vizitDiscrHTML, vizitDateHTML, vizitPriorityHTML, vizitorAgeHTML, vizitorWeightHTML, vizitorBPHTML, newCardSabm, vizitorDiseasHTML, "modalCard", "modalCardId");
     document.body.append(modalCard.render());
 
@@ -369,7 +369,7 @@ newCardBtn.addEventListener("click", () => {
 })
 // fetch DELETE запрос на получение массива всех карточек с объекта
 
-const delrequest = fetch("http://cards.danit.com.ua/cards/2460", {
+const delrequest = fetch("https://cards.danit.com.ua/cards/2460", {
     method: "delete",
     headers: {
         "Content-type": "aplication/json",
@@ -382,7 +382,7 @@ const delrequest = fetch("http://cards.danit.com.ua/cards/2460", {
 
 const serchBtn = document.getElementById("serchBtn");
 serchBtn.addEventListener("click", function () {
-    const requesCards = fetch("http://cards.danit.com.ua/cards", {
+    const requesCards = fetch("https://cards.danit.com.ua/cards", {
         method: "get",
         headers: {
             "Content-type": "aplication/json",
@@ -576,7 +576,7 @@ class Visit {
 
             // надо вызвать модалку формы но передать туда поля этой карты
             document.querySelector(`.edit${id}`).addEventListener('click', () => {
-                const modalCard = new CartModal("http://cards.danit.com.ua/cards", "modalFormcardId", viziPashentDataHTML, vizitTitleHTML, vizitDoctorselectHTML, vizitDoctorDataHTML,
+                const modalCard = new CartModal("https://cards.danit.com.ua/cards", "modalFormcardId", viziPashentDataHTML, vizitTitleHTML, vizitDoctorselectHTML, vizitDoctorDataHTML,
                     vizitDiscrHTML, vizitDateHTML, vizitPriorityHTML, vizitorAgeHTML, vizitorWeightHTML, vizitorBPHTML, newCardSabm, vizitorDiseasHTML, "modalCard", "modalCardId");
                 document.body.append(modalCard.render());
                 // поля из редактируемой карты передаем в форму
@@ -669,7 +669,7 @@ class Visit {
         const closeBtn = document.querySelector(`.closeBtn${id}`);
         closeBtn.addEventListener('click', () => {
             console.log(id)
-            const delrequest = fetch(`http://cards.danit.com.ua/cards/${id}`, {
+            const delrequest = fetch(`https://cards.danit.com.ua/cards/${id}`, {
                 method: "delete",
                 headers: {
                     "Content-type": "aplication/json",
@@ -684,7 +684,7 @@ class Visit {
     }
 }
 function chooseVisit() {
-    const request = fetch("http://cards.danit.com.ua/cards", {
+    const request = fetch("https://cards.danit.com.ua/cards", {
         method: "get",
         headers: {
             "Content-type": "aplication/json",
